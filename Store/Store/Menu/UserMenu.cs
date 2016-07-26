@@ -6,29 +6,50 @@ using System.Threading.Tasks;
 
 namespace Store.Menu
 {
-    class UserMenu : IMenu
+    class UserMenu : Menu
     {
         const String DESCRIPTION = "What would you like to do?";
 
-        public String Description { get { return DESCRIPTION; } }
 
-        private MenuItem[] _menuItems; 
+        public override String Description { get { return DESCRIPTION; } }
 
-        public UserMenu()
+        private MenuItem[] _menuItems;
+        private Store.Store _store;
+
+        public UserMenu(Store.Store store, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
         {
+            _breadcrumbs.Push(this);
+
             _menuItems = new MenuItem[]
             {
-                new MenuItemListProducts(),
-                new MenuItemProductCategories(),
-                new MenuItemViewCart(),
-                new MenuItemViewWallet(),
-                new MenuItemExitPrompt(this)
+                new MenuItem("List all products", 'l', () => 
+                {
+                    return new InventoryMenu(store.Inventory, _breadcrumbs);
+                }),
+                new MenuItem("Product categories", 'p', () =>
+                {
+                    throw new NotImplementedException();
+                }),
+                new MenuItem("view Cart", 'c', () => 
+                {
+                    throw new NotImplementedException();
+                }),
+                new MenuItem("view Wallet", 'w', () =>
+                {
+                    throw new NotImplementedException();
+                }),
+                new MenuItem("Exit", 'e', () => 
+                {
+                    return new ConfirmationMenu(_breadcrumbs, () => { return null; });
+                })
             };
+
+            _store = store;
         }
 
-        public MenuItem this[int i] { get { return _menuItems[i]; } }
+        public override MenuItem this[int i] { get { return _menuItems[i]; } }
 
-        public MenuItem this[char c]
+        public override MenuItem this[char c]
         {
             get
             {
@@ -43,21 +64,9 @@ namespace Store.Menu
             }
         }
 
-        public string FullPrompt
-        {
-            get
-            {
-                String result = String.Format("{0}\n\n", Description);
-                for (int i = 0; i < _menuItems.Length; i++)
-                {
-                    MenuItem item = _menuItems[i];
-                    result = String.Format("{0}{1}: {2}\n", result, i + 1, item.Description);
-                }
-                return result;
-            }
-        }
+        
 
-        public int Length { get { return _menuItems.Length; } }
+        public override int Length { get { return _menuItems.Length; } }
 
 
     }

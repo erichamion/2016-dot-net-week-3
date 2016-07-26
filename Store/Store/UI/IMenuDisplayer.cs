@@ -8,6 +8,6 @@ namespace Store.UI
 {
     interface IMenuDisplayer
     {
-        Menu.IMenu ShowMenuAndGetSelection(Menu.IMenu menu);
+        Menu.Menu ShowMenuAndGetSelection(Menu.Menu menu);
     }
 }

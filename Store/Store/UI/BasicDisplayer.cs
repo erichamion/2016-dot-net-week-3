@@ -9,13 +9,13 @@ namespace Store.UI
 {
     class BasicDisplayer : IMenuDisplayer
     {
-        public IMenu ShowMenuAndGetSelection(IMenu menu)
+        public Menu.Menu ShowMenuAndGetSelection(Menu.Menu menu)
         {
             Console.Clear();
             Console.WriteLine(menu.FullPrompt);
             char inp = Console.ReadKey(true).KeyChar;
             bool success = false;
-            IMenu result = null;
+            Menu.Menu result = null;
             do
             {
                 try

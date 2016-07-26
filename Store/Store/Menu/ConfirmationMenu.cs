@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Store.Menu
 {
-    class ConfirmationMenu : IMenu
+    class ConfirmationMenu : Menu
     {
         const String DESCRIPTION = "Are you sure?";
         const int YES = 0;
@@ -14,13 +14,18 @@ namespace Store.Menu
 
         private MenuItem[] _menuItems = new MenuItem[2];
 
-        public ConfirmationMenu(IMenu yesResult, IMenu noResult)
+        public ConfirmationMenu(Stack<Menu> breadcrumbs, MenuItem.Executable onYes) : base(breadcrumbs)
         {
-            _menuItems[YES] = new MenuItemConfirm(yesResult, "yes", 0);
-            _menuItems[NO] = new MenuItemConfirm(noResult, "no", 0);
+            // Do NOT push this onto the breadcrumb stack. 
+
+            _menuItems[YES] = new MenuItem("Yes", 'y', onYes);
+            _menuItems[NO] = new MenuItem("no", 'n', () => 
+            {
+                return _breadcrumbs.Pop();
+            });
         }
 
-        public MenuItem this[char c]
+        public override MenuItem this[char c]
         {
             get
             {
@@ -36,7 +41,7 @@ namespace Store.Menu
             }
         }
 
-        public MenuItem this[int i]
+        public override MenuItem this[int i]
         {
             get
             {
@@ -44,7 +49,7 @@ namespace Store.Menu
             }
         }
 
-        public string Description
+        public override string Description
         {
             get
             {
@@ -52,20 +57,6 @@ namespace Store.Menu
             }
         }
 
-        public string FullPrompt
-        {
-            get
-            {
-                String result = String.Format("{0}\n\n", Description);
-                for (int i = 0; i < _menuItems.Length; i++)
-                {
-                    MenuItem item = _menuItems[i];
-                    result = String.Format("{0}{1}: {2}\n", result, i + 1, item.Description);
-                }
-                return result;
-            }
-        }
-
-        public int Length { get { return 2; } }
+        public override int Length { get { return 2; } }
     }
 }
