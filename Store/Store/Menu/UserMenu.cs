@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.Menu
+namespace StoreProgram.Menu
 {
     class UserMenu : Menu
     {
@@ -24,7 +24,7 @@ namespace Store.Menu
             {
                 new MenuItem("List all products", 'l', () => 
                 {
-                    return new InventoryMenu(store.Inventory, _breadcrumbs);
+                    return new InventoryMenu(_store, _breadcrumbs);
                 }),
                 new MenuItem("Product categories", 'p', () =>
                 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.Store
+namespace StoreProgram.Store
 {
     class Product
     {
@@ -48,6 +48,25 @@ namespace Store.Store
             Price = double.Parse(tokens.Dequeue());
         }
 
+        /**
+         * intro is printed before everything else. lineIntro is printed
+         * before every line *except the first line*. If outro is not
+         * empty and is not null, then the lineIntro and outro will be
+         * printed on a new line.
+         */
+        public String PrettyPrint(String intro, String lineIntro, String outro = "")
+        {
+            String effectiveIntro = intro ?? String.Empty;
+            String effectiveOtherLineIntro = lineIntro ?? String.Empty;
+            String result = String.Format("{0}Id: {1}\n{2}Name: {3}\n{2}Category: {4}\n{2}Price: {5:C}",
+                effectiveIntro, Id, effectiveOtherLineIntro, Name, Category, Price);
+            if (!String.IsNullOrEmpty(outro))
+            {
+                result = String.Format("{0}\n{1}{2}", result, lineIntro, outro);
+            }
+            return result;
+        }
+
         public override string ToString()
         {
             return ToString("\t", ProductFields.ID, ProductFields.NAME, ProductFields.CATEGORY, ProductFields.PRICE);
@@ -84,6 +103,7 @@ namespace Store.Store
                 }
 
                 result = String.Format("{0}{1}{2}", result, (hasLooped ? sep : String.Empty), fieldString);
+                hasLooped = true;
             }
 
             return result;

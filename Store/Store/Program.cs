@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StoreProgram.UI;
 
-namespace Store
+namespace StoreProgram
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Store.Inventory inventory = new Store.Inventory(Store.Inventory.AccessLevels.USER);
+            Store.Inventory inventory = new Store.Inventory();
             Store.Product[] products = new Store.Product[]
             {
                 new Store.Product("Self-sealing stem bolt (144 pack)", "Unknown", 35.99),
@@ -30,7 +31,7 @@ namespace Store
             Store.Store store = new Store.Store(inventory);
 
             Menu.Menu menu = new Menu.UserMenu(store);
-            UI.IMenuDisplayer displayer = new UI.BasicDisplayer();
+            UI.IMenuDisplayer displayer = new BasicDisplayer();
 
             do
             {

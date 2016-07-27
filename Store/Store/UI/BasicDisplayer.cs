@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Store.Menu;
+using StoreProgram.Menu;
 
-namespace Store.UI
+namespace StoreProgram.UI
 {
     class BasicDisplayer : IMenuDisplayer
     {
@@ -20,7 +16,7 @@ namespace Store.UI
             {
                 try
                 {
-                    Menu.MenuItem chosenItem = menu[Char.IsDigit(inp) ? int.Parse(inp.ToString()) - 1 : inp];
+                    MenuItem chosenItem = menu[Char.IsDigit(inp) ? int.Parse(inp.ToString()) - 1 : inp];
                     Console.WriteLine(chosenItem.Description);
                     result = chosenItem.Execute();
                     success = true;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.Menu
+namespace StoreProgram.Menu
 {
     abstract class Menu
     {
@@ -16,10 +16,12 @@ namespace Store.Menu
 
         protected readonly Stack<Menu> _breadcrumbs;
 
+
         public Menu(Stack<Menu> breadcrumbs = null)
         {
             _breadcrumbs = breadcrumbs ?? new Stack<Menu>();
         }
+
 
         public String FullPrompt
         {
@@ -35,10 +37,18 @@ namespace Store.Menu
             }
         }
 
-        protected Menu PushBreadcrumbAndExecuteMenuItem(MenuItem menuItem)
+        
+
+        /**
+         * The current Menu is assumed to have been pushed onto _breadcrumbs.
+         */
+        protected MenuItem GetBackMenuItem(String desc = "Back to previous menu", char? shortcut = 'b')
         {
-            _breadcrumbs.Push(this);
-            return menuItem.Execute();
+            return new MenuItem(desc, shortcut, () =>
+            {
+                _breadcrumbs.Pop();
+                return (_breadcrumbs.Count > 0) ? _breadcrumbs.Peek() : null;
+            });
         }
     }
 }

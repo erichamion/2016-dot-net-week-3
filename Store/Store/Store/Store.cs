@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.Store
+namespace StoreProgram.Store
 {
     class Store
     {

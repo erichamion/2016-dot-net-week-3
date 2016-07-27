@@ -47,6 +47,7 @@
     <Compile Include="Menu\Menu.cs" />
     <Compile Include="Menu\InventoryMenu.cs" />
     <Compile Include="Menu\MenuItem.cs" />
+    <Compile Include="Menu\SortMenu.cs" />
     <Compile Include="Menu\UserMenu.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

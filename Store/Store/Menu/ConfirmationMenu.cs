@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.Menu
+namespace StoreProgram.Menu
 {
     class ConfirmationMenu : Menu
     {
@@ -19,9 +19,9 @@ namespace Store.Menu
             // Do NOT push this onto the breadcrumb stack. 
 
             _menuItems[YES] = new MenuItem("Yes", 'y', onYes);
-            _menuItems[NO] = new MenuItem("no", 'n', () => 
+            _menuItems[NO] = new MenuItem("No", 'n', () => 
             {
-                return _breadcrumbs.Pop();
+                return _breadcrumbs.Peek();
             });
         }
 

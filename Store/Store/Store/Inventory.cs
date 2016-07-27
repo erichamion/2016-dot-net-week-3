@@ -4,45 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.Store
+namespace StoreProgram.Store
 {
     class Inventory
     {
         private Dictionary<Product, int> _productCounts = new Dictionary<Product, int>();
-        private AccessLevels _accessLevel;
-
-        private delegate String ShowProductDelegate(Product product);
-        private ShowProductDelegate _ShowProduct;
-
-        public AccessLevels AccessLevel
-        {
-            get { return _accessLevel; }
-            set
-            {
-                switch (value)
-                {
-                    case AccessLevels.USER:
-                        _ShowProduct = new ShowProductDelegate(ShowProductUser);
-                        break;
-
-                    case AccessLevels.ADMIN:
-                        _ShowProduct = new ShowProductDelegate(ShowProductAdmin);
-                        break;
-                }
-                _accessLevel = value;
-            }
-        }
-
-        public enum AccessLevels
-        {
-            USER, ADMIN
-        }
-
-        public Inventory(AccessLevels accessLevel)
-        {
-            AccessLevel = accessLevel;
-        }
-
         public void AddProduct(Product product, int count = 1)
         {
             int oldCount = GetProductCount(product);
@@ -74,17 +40,6 @@ namespace Store.Store
                 }
             }
             return null;
-        }
-
-        public String ShowProduct(Product product)
-        {
-            return _ShowProduct(product);
-        }
-
-        public String ShowProduct(uint productId)
-        {
-            Product product = GetProduct(productId);
-            return (product != null) ? ShowProduct(product) : String.Empty;
         }
 
         private int GetProductCount(Product product)

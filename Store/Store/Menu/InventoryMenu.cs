@@ -4,28 +4,65 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.Menu
+namespace StoreProgram.Menu
 {
     class InventoryMenu : Menu
     {
         const String DESCRIPTION_FMT_STRING = "Showing items {0}-{1} (Sorted by: {2})";
-        const int TOTAL_LINES = 9;
+
+        // 9 total rows max (because user has to select a 1-digit positive integer)
+        // 1 row reserved for Back option
+        // 1 row reserved for Sort option
+        // Up to 2 rows reserved for next/previous page options
+        // That leaves 5 rows remaining for products.
+        const int MAX_PRODUCTS_PER_PAGE = 5;
 
         private List<MenuItem> _menuItems = new List<MenuItem>();
-        private Store.Inventory _inventory;
+        private Store.Store _store;
         List<Store.Product> _products;
         private int _firstIndex = 0;
         private int _lastIndex;
         private SortFields _sortMethod = SortFields.NONE;
 
-        private enum SortFields
+        public enum SortFields
         {
             NONE, NAME, CATEGORY, PRICE
         }
 
-        public InventoryMenu(Store.Inventory inventory, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
+        public SortFields SortMethod
         {
-            _inventory = inventory;
+            get { return _sortMethod; }
+            set
+            {
+                bool isChanged = (_sortMethod != value);
+                _sortMethod = value;
+                if (isChanged)
+                {
+                    RefreshInventory();
+                    PopulateRows();
+                }
+            }
+        }
+
+        public override string Description
+        {
+            get
+            {
+                return String.Format(DESCRIPTION_FMT_STRING, _firstIndex + 1, _lastIndex + 1, _sortMethod);
+            }
+        }
+
+        public override int Length
+        {
+            get
+            {
+                return _menuItems.Count;
+            }
+        }
+
+        public InventoryMenu(Store.Store store, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
+        {
+            _store = store;
             _breadcrumbs.Push(this);
             RefreshInventory();
             PopulateRows();
@@ -45,26 +82,10 @@ namespace Store.Menu
 
         public override MenuItem this[int i] { get { return _menuItems[i]; } }
 
-        public override string Description
-        {
-            get
-            {
-                return String.Format(DESCRIPTION_FMT_STRING, _firstIndex + 1, _lastIndex + 1, _sortMethod);
-            }
-        }
-
-        public override int Length
-        {
-            get
-            {
-                return _menuItems.Count;
-            }
-        }
-
         private void RefreshInventory()
         {
             _firstIndex = 0;
-            _products = _inventory.GetAllProducts();
+            _products = _store.Inventory.GetAllProducts();
             SortInventory();
         }
 
@@ -108,42 +129,62 @@ namespace Store.Menu
 
         private void PopulateRows()
         {
+            // Start with a clean slate
             _menuItems.Clear();
-            int productRows = TOTAL_LINES;
 
-            // Back option
-            productRows--;
+            // Get MAX_PRODUCTS_PER_PAGE rows, or all the remaining rows if
+            // there are not that many.
+            int productRows = Math.Min(MAX_PRODUCTS_PER_PAGE, _products.Count - _firstIndex);
+            _lastIndex = _firstIndex + productRows - 1;
 
-            // Sort
-            productRows--;
-
-            // Previous page
-            if (_firstIndex > 0)
-            {
-                productRows--;
-            }
-
-            if (_products.Count - _firstIndex > productRows)
-            {
-                // Next page
-                productRows--;
-            }
-            else
-            {
-                // Ensure we can't have more product rows than remaining products
-                productRows = _products.Count - _firstIndex - 1;
-            }
-
-            _lastIndex = _firstIndex + productRows;
+            // Add menu items for all the product rows
             for (int i = _firstIndex; i <= _lastIndex; i++)
             {
-                //_menuItems.Add(new MenuItemAddToCart(_products[i], _inventory.CheckAvailability(_products[i])));
+                bool isAvailable = _store.Inventory.CheckAvailability(_products[i]);
+                String productDescription = _products[i].PrettyPrint("", "   ", isAvailable ? "Available" : "Out of stock");
+                _menuItems.Add(new MenuItem(productDescription, null, () =>
+                {
+                    //Prompt for a number of items, then add the specified number to cart
+                    throw new NotImplementedException();
+                    return this;
+                }));
             }
 
-            if (_firstIndex > 0)
+            // Sort
+            _menuItems.Add(new MenuItem("Sort products", 's', () =>
             {
-                //_menuItems.Add()
+                //Start a menu to prompt for the type of sort
+                return new SortMenu(_breadcrumbs);
+            }));
+
+            // Previous page
+            if (_firstIndex > 0) {
+                _menuItems.Add(new MenuItem("Previous page", 'p', () =>
+                {
+                    _firstIndex -= MAX_PRODUCTS_PER_PAGE;
+                    // This should never result in a negative value (because we always
+                    // increment and decrement by the same amount, and this item is not
+                    // added if _firstIndex == 0), but be safe:
+                    _firstIndex = (_firstIndex >= 0) ? _firstIndex : 0;
+                    PopulateRows();
+                    return this;
+                }));
             }
+
+            // Next page
+            if (_lastIndex < _products.Count - 1) {
+                _menuItems.Add(new MenuItem("Next page", 'n', () =>
+                {
+                    _firstIndex += MAX_PRODUCTS_PER_PAGE;
+                // This should never equal/exceed the product count, but be safe:
+                _firstIndex = (_firstIndex >= _products.Count) ? _products.Count - 1 : _firstIndex;
+                    PopulateRows();
+                    return this;
+                }));
+            }
+
+            // Back
+            _menuItems.Add(GetBackMenuItem());
         }
     }
 }
