@@ -6,16 +6,9 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    abstract class BaseInventoryMenu : Menu
+    abstract class BaseInventoryMenu : PagingMenu
     {
-        // 9 total rows max (because user has to select a 1-digit positive integer)
-        // 1 row reserved for Back option
-        // 1 row reserved for Sort option
-        // Up to 2 rows reserved for next/previous page options
-        // That leaves 5 rows remaining for products.
-        const int MAX_PRODUCTS_PER_PAGE = 5;
-
-        private readonly List<MenuItem> _menuItems = new List<MenuItem>();
+        
         private SortFields _sortMethod = SortFields.NONE;
 
         public SortFields SortMethod
@@ -32,25 +25,11 @@ namespace StoreProgram.Menu
             }
         }
 
-        public sealed override int Length
-        {
-            get
-            {
-                return _menuItems.Count;
-            }
-        }
-
-        protected int FirstIndex { get; private set; }
-
-        protected int LastIndex { get; private set; }
-
         protected Store.Store Store { get; }
 
         protected List<Store.Product> Products { get; set; }
 
         protected UI.IMenuDisplayer Displayer { get; }
-
-
 
         public BaseInventoryMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
         {
@@ -64,24 +43,39 @@ namespace StoreProgram.Menu
         protected abstract String GetMenuItemDescription(Store.Product product);
         protected abstract MenuItem.Executable GetProductAction(Store.Product product);
 
+        protected sealed override int ItemCount { get { return Products.Count; } }
 
-        public sealed override MenuItem this[char c]
+        // Sort menu item, and Back menu item
+        protected sealed override int ExtraMenuItemCount { get { return 2; } }
+
+        protected sealed override MenuItem GetMenuItemForIndex(int index)
         {
-            get
-            {
-                foreach (MenuItem item in _menuItems)
-                {
-                    if (item.Shortcut == c) return item;
-                }
-                throw new IndexOutOfRangeException();
-            }
+            Store.Product product = Products[index];
+            bool isAvailable = Store.Inventory.CheckAvailability(product);
+            return new MenuItem(GetMenuItemDescription(product), GetShortcutKey(product), GetProductAction(product));
         }
 
-        public sealed override MenuItem this[int i] { get { return _menuItems[i]; } }
+        protected sealed override ICollection<MenuItem> GetExtraMenuItemsBefore()
+        {
+            return new List<MenuItem>
+            {
+                new MenuItem("Sort products", 's', () =>
+                {
+                    //Start a menu to prompt for the type of sort
+                    return new SortMenu(Breadcrumbs);
+                })
+            };
+        }
+
+        protected sealed override ICollection<MenuItem> GetExtraMenuItemsAfter()
+        {
+            return new List<MenuItem> { GetBackMenuItem() };
+        }
+
 
         protected void RefreshInventory()
         {
-            FirstIndex = 0;
+            ResetFirstIndex();
             Products = GetInventory();
             SortInventory();
             PopulateRows();
@@ -133,63 +127,7 @@ namespace StoreProgram.Menu
         }
 
         
-        private void PopulateRows()
-        {
-            // Start with a clean slate
-            _menuItems.Clear();
-
-            // Get MAX_PRODUCTS_PER_PAGE rows, or all the remaining rows if
-            // there are not that many.
-            int productRows = Math.Min(MAX_PRODUCTS_PER_PAGE, Products.Count - FirstIndex);
-            LastIndex = FirstIndex + productRows - 1;
-
-            // Add menu items for all the product rows
-            for (int i = FirstIndex; i <= LastIndex; i++)
-            {
-                Store.Product product = Products[i];
-                bool isAvailable = Store.Inventory.CheckAvailability(product);
-                //String productDescription = product.PrettyPrint("", "   ", isAvailable ? "Available" : "Out of stock");
-                String productDescription = GetMenuItemDescription(product);
-                _menuItems.Add(new MenuItem(GetMenuItemDescription(product), GetShortcutKey(product), GetProductAction(product)));
-            }
-
-            // Sort
-            _menuItems.Add(new MenuItem("Sort products", 's', () =>
-            {
-                //Start a menu to prompt for the type of sort
-                return new SortMenu(Breadcrumbs);
-            }));
-
-            // Previous page
-            if (FirstIndex > 0) {
-                _menuItems.Add(new MenuItem("Previous page", 'p', () =>
-                {
-                    FirstIndex -= MAX_PRODUCTS_PER_PAGE;
-                    // This should never result in a negative value (because we always
-                    // increment and decrement by the same amount, and this item is not
-                    // added if _firstIndex == 0), but be safe:
-                    FirstIndex = (FirstIndex >= 0) ? FirstIndex : 0;
-                    PopulateRows();
-                    return this;
-                }));
-            }
-
-            // Next page
-            if (LastIndex < Products.Count - 1) {
-                _menuItems.Add(new MenuItem("Next page", 'n', () =>
-                {
-                    FirstIndex += MAX_PRODUCTS_PER_PAGE;
-                    // This should never equal/exceed the product count, but be safe:
-                    FirstIndex = (FirstIndex >= Products.Count) ? Products.Count - 1 : FirstIndex;
-                    PopulateRows();
-                    return this;
-                }));
-            }
-
-            // Back
-            _menuItems.Add(GetBackMenuItem());
-        }
-
+        
         private void AddProductToCart(Store.Product product)
         {
             int count = -1;
