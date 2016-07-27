@@ -56,10 +56,20 @@ namespace StoreProgram.Store
          */
         public String PrettyPrint(String intro, String lineIntro, String outro = "")
         {
+            int labelSize = "Category: ".Length;
+            String labelFormatter = String.Format("{{0,-{0}}}", labelSize);
+            String[] labelNames = new String[] { "Id:", "Name:", "Category", "Price:" };
+            String[] labels = new String[labelNames.Length];
+            for (int i = 0; i < labelNames.Length; i++)
+            {
+                labels[i] = String.Format(labelFormatter, labelNames[i]);
+            }
+
             String effectiveIntro = intro ?? String.Empty;
             String effectiveOtherLineIntro = lineIntro ?? String.Empty;
-            String result = String.Format("{0}Id: {1}\n{2}Name: {3}\n{2}Category: {4}\n{2}Price: {5:C}",
-                effectiveIntro, Id, effectiveOtherLineIntro, Name, Category, Price);
+            String result = String.Format("{0}{6}{1}\n{2}{7}{3}\n{2}{8}{4}\n{2}{9}{5:C}",
+                effectiveIntro, Id, effectiveOtherLineIntro, Name, Category, Price,
+                labels[0], labels[1], labels[2], labels[3]);
             if (!String.IsNullOrEmpty(outro))
             {
                 result = String.Format("{0}\n{1}{2}", result, lineIntro, outro);
