@@ -7,16 +7,25 @@ namespace StoreProgram.UI
     {
         public Menu.Menu ShowMenuAndGetSelection(Menu.Menu menu)
         {
-            Console.Clear();
-            Console.WriteLine(menu.FullPrompt);
-            char inp = Console.ReadKey(true).KeyChar;
             bool success = false;
             Menu.Menu result = null;
             do
             {
                 try
                 {
-                    MenuItem chosenItem = menu[Char.IsDigit(inp) ? int.Parse(inp.ToString()) - 1 : inp];
+                    Console.Clear();
+                    Console.WriteLine(menu.FullPrompt);
+                    char inp = Console.ReadKey(true).KeyChar;
+
+                    MenuItem chosenItem;
+                    if (Char.IsDigit(inp))
+                    {
+                        chosenItem = menu[int.Parse(inp.ToString()) - 1];
+                    }
+                    else
+                    {
+                        chosenItem = menu[inp];
+                    }
                     Console.WriteLine(chosenItem.Description);
                     result = chosenItem.Execute();
                     success = true;
