@@ -24,9 +24,24 @@ namespace StoreProgram
                 new Store.Product("Quantum flux regulator", "Engineering Tools", 997.97),
                 new Store.Product("Thermal regulator", "Engineering Tools", 222.22)
             };
-            foreach (Store.Product product in products)
+            int[] productCounts = new int[]
             {
-                inventory.AddProduct(product);
+                12000,
+                3000,
+                1000,
+                1000,
+                300,
+                0,
+                74,
+                27,
+                42
+            };
+            for (int i = 0; i < products.Length; i++)
+            {
+                Store.Product product = products[i];
+                int count = productCounts[i];
+            
+                inventory.AddProduct(product, count);
             }
             Store.Store store = new Store.Store(inventory);
 
