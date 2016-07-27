@@ -23,6 +23,7 @@ namespace StoreProgram.Menu
         private int _firstIndex = 0;
         private int _lastIndex;
         private SortFields _sortMethod = SortFields.NONE;
+        private readonly UI.IMenuDisplayer _displayer;
 
         public enum SortFields
         {
@@ -60,9 +61,10 @@ namespace StoreProgram.Menu
             }
         }
 
-        public InventoryMenu(Store.Store store, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
+        public InventoryMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
         {
             _store = store;
+            _displayer = displayer;
             _breadcrumbs.Push(this);
             RefreshInventory();
             PopulateRows();
@@ -140,12 +142,16 @@ namespace StoreProgram.Menu
             // Add menu items for all the product rows
             for (int i = _firstIndex; i <= _lastIndex; i++)
             {
-                bool isAvailable = _store.Inventory.CheckAvailability(_products[i]);
-                String productDescription = _products[i].PrettyPrint("", "   ", isAvailable ? "Available" : "Out of stock");
+                Store.Product product = _products[i];
+                bool isAvailable = _store.Inventory.CheckAvailability(product);
+                String productDescription = product.PrettyPrint("", "   ", isAvailable ? "Available" : "Out of stock");
                 _menuItems.Add(new MenuItem(productDescription, null, () =>
                 {
                     //Prompt for a number of items, then add the specified number to cart
-                    throw new NotImplementedException();
+                    AddProductToCart(product);
+                    _displayer.ShowMessage("Press any key to continue...");
+                    Console.ReadKey();
+
                     return this;
                 }));
             }
@@ -185,6 +191,32 @@ namespace StoreProgram.Menu
 
             // Back
             _menuItems.Add(GetBackMenuItem());
+        }
+
+        private void AddProductToCart(Store.Product product)
+        {
+            int count = -1;
+            do
+            {
+                String response = _displayer.PromptUserAndGetResponse(String.Format("How many units of '{0}' would you like to add to the cart?", product.Name));
+                bool isValid = int.TryParse(response, out count);
+                if (!isValid) count = -1;
+
+                if (count < 0)
+                {
+                    _displayer.ShowMessage("Please enter a valid positive integer (or 0 to abort).");
+                }
+            } while (count < 0);
+
+            if (count == 0)
+            {
+                _displayer.ShowMessage("Zero units selected. Aborting.");
+            }
+            else
+            {
+                _displayer.ShowMessage(String.Format("Adding {0} units of '{1}' to cart.", count, product.Name));
+                _store.Customer.Cart.AddProduct(product, count);
+            }
         }
     }
 }

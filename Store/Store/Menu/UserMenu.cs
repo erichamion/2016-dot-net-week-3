@@ -15,16 +15,18 @@ namespace StoreProgram.Menu
 
         private MenuItem[] _menuItems;
         private Store.Store _store;
+        private readonly UI.IMenuDisplayer _displayer;
 
-        public UserMenu(Store.Store store, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
+        public UserMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
         {
+            _displayer = displayer;
             _breadcrumbs.Push(this);
 
             _menuItems = new MenuItem[]
             {
                 new MenuItem("List all products", 'l', () => 
                 {
-                    return new InventoryMenu(_store, _breadcrumbs);
+                    return new InventoryMenu(_store, _displayer, _breadcrumbs);
                 }),
                 new MenuItem("Product categories", 'p', () =>
                 {

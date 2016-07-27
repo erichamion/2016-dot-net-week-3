@@ -9,5 +9,7 @@ namespace StoreProgram.UI
     interface IMenuDisplayer
     {
         Menu.Menu ShowMenuAndGetSelection(Menu.Menu menu);
+        String PromptUserAndGetResponse(String prompt);
+        void ShowMessage(String message);
     }
 }

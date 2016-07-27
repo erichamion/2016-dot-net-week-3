@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DictionaryHelper.cs" />
     <Compile Include="Menu\ConfirmationMenu.cs" />
     <Compile Include="Menu\Menu.cs" />
     <Compile Include="Menu\InventoryMenu.cs" />
@@ -56,13 +57,13 @@
     <Compile Include="Store\Store.cs" />
     <Compile Include="UI\BasicDisplayer.cs" />
     <Compile Include="UI\IMenuDisplayer.cs" />
+    <Compile Include="User\Customer.cs" />
+    <Compile Include="User\ShoppingCart.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Customer\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

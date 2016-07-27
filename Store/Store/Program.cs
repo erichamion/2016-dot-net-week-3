@@ -45,8 +45,8 @@ namespace StoreProgram
             }
             Store.Store store = new Store.Store(inventory);
 
-            Menu.Menu menu = new Menu.UserMenu(store);
             UI.IMenuDisplayer displayer = new BasicDisplayer();
+            Menu.Menu menu = new Menu.UserMenu(store, displayer);
 
             do
             {

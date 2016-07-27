@@ -31,5 +31,17 @@ namespace StoreProgram.UI
 
             return result;
         }
+
+        public string PromptUserAndGetResponse(string prompt)
+        {
+            Console.WriteLine(prompt);
+            Console.Write(" > ");
+            return Console.ReadLine();
+        }
+
+        public void ShowMessage(String message)
+        {
+            Console.WriteLine(message);
+        }
     }
 }

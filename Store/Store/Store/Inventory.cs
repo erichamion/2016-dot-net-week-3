@@ -44,14 +44,7 @@ namespace StoreProgram.Store
 
         private int GetProductCount(Product product)
         {
-            int count = 0;
-            bool hasValue = (product != null) ? _productCounts.TryGetValue(product, out count) : false;
-            if (!hasValue)
-            {
-                count = 0;
-            }
-
-            return count;
+            return DictionaryHelper.GetWithDefault(_productCounts, product);
         }
 
         private String ShowProductUser(Product product)
