@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="DictionaryHelper.cs" />
     <Compile Include="Menu\ConfirmationMenu.cs" />
+    <Compile Include="Menu\BaseInventoryMenu.cs" />
     <Compile Include="Menu\Menu.cs" />
     <Compile Include="Menu\InventoryMenu.cs" />
     <Compile Include="Menu\MenuItem.cs" />

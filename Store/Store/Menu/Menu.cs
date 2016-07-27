@@ -13,13 +13,12 @@ namespace StoreProgram.Menu
 
         public abstract MenuItem this[int i] { get; }
         public abstract MenuItem this[char c] { get; }
-
-        protected readonly Stack<Menu> _breadcrumbs;
+        protected Stack<Menu> Breadcrumbs { get; }
 
 
         public Menu(Stack<Menu> breadcrumbs = null)
         {
-            _breadcrumbs = breadcrumbs ?? new Stack<Menu>();
+            Breadcrumbs = breadcrumbs ?? new Stack<Menu>();
         }
 
 
@@ -46,8 +45,8 @@ namespace StoreProgram.Menu
         {
             return new MenuItem(desc, shortcut, () =>
             {
-                _breadcrumbs.Pop();
-                return (_breadcrumbs.Count > 0) ? _breadcrumbs.Peek() : null;
+                Breadcrumbs.Pop();
+                return (Breadcrumbs.Count > 0) ? Breadcrumbs.Peek() : null;
             });
         }
     }

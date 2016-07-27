@@ -20,13 +20,13 @@ namespace StoreProgram.Menu
         public UserMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
         {
             _displayer = displayer;
-            _breadcrumbs.Push(this);
+            Breadcrumbs.Push(this);
 
             _menuItems = new MenuItem[]
             {
                 new MenuItem("List all products", 'l', () => 
                 {
-                    return new InventoryMenu(_store, _displayer, _breadcrumbs);
+                    return new InventoryMenu(_store, _displayer, Breadcrumbs);
                 }),
                 new MenuItem("Product categories", 'p', () =>
                 {
@@ -42,7 +42,7 @@ namespace StoreProgram.Menu
                 }),
                 new MenuItem("Exit", 'e', () => 
                 {
-                    return new ConfirmationMenu(_breadcrumbs, () => { return null; });
+                    return new ConfirmationMenu(Breadcrumbs, () => { return null; });
                 })
             };
 

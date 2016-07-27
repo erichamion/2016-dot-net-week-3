@@ -21,7 +21,7 @@ namespace StoreProgram.Menu
             _menuItems[YES] = new MenuItem("Yes", 'y', onYes);
             _menuItems[NO] = new MenuItem("No", 'n', () => 
             {
-                return _breadcrumbs.Peek();
+                return Breadcrumbs.Peek();
             });
         }
 
