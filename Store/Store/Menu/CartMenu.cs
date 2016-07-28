@@ -17,7 +17,7 @@ namespace StoreProgram.Menu
         public CartMenu(Store.Store store, IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : 
             base(store, displayer, breadcrumbs)
         {
-            _checkoutMenuItem = new MenuItem("Checkout", 'c', () => { throw new NotImplementedException(); });
+            _checkoutMenuItem = new MenuItem("Checkout", 'c', Checkout);
 
             RefreshInventory();
         }
@@ -85,6 +85,33 @@ namespace StoreProgram.Menu
 
                 return this;
             };
+        }
+
+        private Menu Checkout()
+        {
+            // Attempt to checkout
+            String errors;
+            bool success = Store.Checkout(out errors);
+            String msg;
+            Menu result;
+            if (success)
+            {
+                // Checkout succeeded. Return to previous menu.
+                msg = "Checkout succeeded! Press any key...";
+                Breadcrumbs.Pop();
+                result = Breadcrumbs.Peek();
+            }
+            else
+            {
+                // Checkout failed. Print errors and remain on the cart.
+                // The user can remove items from the cart and try again.
+                msg = String.Format("Checkout failed:\n{0}\n\nPress any key...", errors);
+                result = this;
+            }
+
+            Displayer.ShowMessage(msg);
+            Console.ReadKey(true);
+            return result;
         }
     }
 }
