@@ -14,7 +14,8 @@ namespace StoreProgram.Menu
 
         private MenuItem[] _menuItems = new MenuItem[2];
 
-        public ConfirmationMenu(Stack<Menu> breadcrumbs, MenuItem.Executable onYes) : base(breadcrumbs)
+        public ConfirmationMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs, MenuItem.Executable onYes) : 
+            base(store, displayer, breadcrumbs)
         {
             // Do NOT push this onto the breadcrumb stack. 
 

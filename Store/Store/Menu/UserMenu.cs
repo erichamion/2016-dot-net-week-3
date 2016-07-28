@@ -14,23 +14,21 @@ namespace StoreProgram.Menu
         public override String Description { get { return DESCRIPTION; } }
 
         private MenuItem[] _menuItems;
-        private Store.Store _store;
-        private readonly UI.IMenuDisplayer _displayer;
-
-        public UserMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
+        
+        public UserMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : 
+            base(store, displayer, breadcrumbs)
         {
-            _displayer = displayer;
             Breadcrumbs.Push(this);
 
             _menuItems = new MenuItem[]
             {
                 new MenuItem("List all products", 'l', () => 
                 {
-                    return new InventoryMenu(_store, _displayer, Breadcrumbs);
+                    return new InventoryMenu(Store, Displayer, Breadcrumbs);
                 }),
                 new MenuItem("Product categories", 'p', () =>
                 {
-                    throw new NotImplementedException();
+                    return new CategoryMenu(Store, Displayer, Breadcrumbs);
                 }),
                 new MenuItem("view Cart", 'c', () => 
                 {
@@ -42,11 +40,9 @@ namespace StoreProgram.Menu
                 }),
                 new MenuItem("Exit", 'e', () => 
                 {
-                    return new ConfirmationMenu(Breadcrumbs, () => { return null; });
+                    return new ConfirmationMenu(Store, Displayer, Breadcrumbs, () => { return null; });
                 })
             };
-
-            _store = store;
         }
 
         public override MenuItem this[int i] { get { return _menuItems[i]; } }

@@ -14,10 +14,14 @@ namespace StoreProgram.Menu
         public abstract MenuItem this[int i] { get; }
         public abstract MenuItem this[char c] { get; }
         protected Stack<Menu> Breadcrumbs { get; }
+        protected Store.Store Store { get; }
+        protected UI.IMenuDisplayer Displayer { get; }
 
 
-        public Menu(Stack<Menu> breadcrumbs = null)
+        public Menu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null)
         {
+            Store = store;
+            Displayer = displayer;
             Breadcrumbs = breadcrumbs ?? new Stack<Menu>();
         }
 

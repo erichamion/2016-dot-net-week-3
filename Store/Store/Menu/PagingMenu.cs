@@ -13,7 +13,7 @@ namespace StoreProgram.Menu
         // 1 row reserved for Sort option
         // Up to 2 rows reserved for next/previous page options
         // That leaves 7 rows remaining for products and extra menu items.
-        protected const int MAX_PRODUCTS_PER_PAGE = 7;
+        protected const int MAX_ITEMS_PER_PAGE = 7;
 
         private readonly List<MenuItem> _menuItems = new List<MenuItem>();
 
@@ -53,7 +53,9 @@ namespace StoreProgram.Menu
         // Shown after the previous/next items
         protected abstract ICollection<MenuItem> GetExtraMenuItemsAfter();
 
-        public PagingMenu(Stack<Menu> breadcrumbs = null) : base(breadcrumbs) { }
+        public PagingMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : 
+            base(store, displayer, breadcrumbs)
+        { }
 
         protected void ResetFirstIndex()
         {
@@ -67,7 +69,7 @@ namespace StoreProgram.Menu
 
             // Get maximum allowed rows, or all the remaining rows if
             // there are not that many.
-            int maxItemRows = MAX_PRODUCTS_PER_PAGE - ExtraMenuItemCount;
+            int maxItemRows = MAX_ITEMS_PER_PAGE - ExtraMenuItemCount;
             int itemRows = Math.Min(maxItemRows, ItemCount - FirstIndex);
             LastIndex = FirstIndex + itemRows - 1;
 
@@ -78,7 +80,11 @@ namespace StoreProgram.Menu
             }
 
             // Extra items shown before the next/previous options
-            _menuItems.AddRange(GetExtraMenuItemsBefore());
+            ICollection<MenuItem> beforeItems = GetExtraMenuItemsBefore();
+            if (beforeItems != null && beforeItems.Count > 0)
+            {
+                _menuItems.AddRange(beforeItems);
+            }
 
             // Previous page
             if (FirstIndex > 0)
@@ -108,9 +114,12 @@ namespace StoreProgram.Menu
                 }));
             }
 
-            // Back
-            // Extra items shown before the next/previous options
-            _menuItems.AddRange(GetExtraMenuItemsAfter());
+            // Extra items shown after the next/previous options
+            ICollection<MenuItem> afterItems = GetExtraMenuItemsAfter();
+            if (afterItems != null && afterItems.Count > 0)
+            {
+                _menuItems.AddRange(afterItems);
+            }
         }
 
     }

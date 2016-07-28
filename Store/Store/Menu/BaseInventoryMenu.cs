@@ -25,18 +25,13 @@ namespace StoreProgram.Menu
             }
         }
 
-        protected Store.Store Store { get; }
-
         protected List<Store.Product> Products { get; set; }
 
-        protected UI.IMenuDisplayer Displayer { get; }
-
-        public BaseInventoryMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : base(breadcrumbs)
+        public BaseInventoryMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) : 
+            base(store, displayer, breadcrumbs)
         {
-            Store = store;
-            Displayer = displayer;
             Breadcrumbs.Push(this);
-            RefreshInventory();
+            //RefreshInventory();
         }
 
         protected abstract List<Store.Product> GetInventory();
@@ -62,7 +57,7 @@ namespace StoreProgram.Menu
                 new MenuItem("Sort products", 's', () =>
                 {
                     //Start a menu to prompt for the type of sort
-                    return new SortMenu(Breadcrumbs);
+                    return new SortMenu(Store, Displayer, Breadcrumbs);
                 })
             };
         }

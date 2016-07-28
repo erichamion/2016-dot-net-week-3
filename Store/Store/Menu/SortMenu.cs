@@ -17,7 +17,8 @@ namespace StoreProgram.Menu
          * instance of InventoryMenu. If not, will throw an
          * InvalidCastException.
          */
-        public SortMenu(Stack<Menu> breadcrumbs) : base(breadcrumbs)
+        public SortMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs) : 
+            base(store, displayer, breadcrumbs)
         {
             // Do NOT push self onto the breadcrumb stack.
 

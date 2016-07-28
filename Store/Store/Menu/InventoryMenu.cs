@@ -9,25 +9,55 @@ namespace StoreProgram.Menu
 {
     class InventoryMenu : BaseInventoryMenu
     {
-        const String DESCRIPTION_FMT_STRING = "Showing items {0}-{1} (Sorted by: {2})";
+        private const String DESCRIPTION_FMT_STRING = "Showing items{0} {1}-{2} (Sorted by: {3})";
+        
+        private String _categoryFilterString;
+
+        private String FilterDescriptionString
+        {
+            get
+            {
+                return (_categoryFilterString != null) ?
+                    String.Format(" in Category '{0}'", _categoryFilterString) :
+                    String.Empty;
+            }
+        }
 
         public override string Description
         {
             get
             {
-                return String.Format(DESCRIPTION_FMT_STRING, FirstIndex + 1, LastIndex + 1, SortMethod);
+                return String.Format(DESCRIPTION_FMT_STRING, FilterDescriptionString, FirstIndex + 1, LastIndex + 1, SortMethod);
             }
         }
 
         public InventoryMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs = null) :
+            this(store, displayer, null, breadcrumbs)
+        { }
+
+        public InventoryMenu(Store.Store store, UI.IMenuDisplayer displayer, String categoryFilter, Stack<Menu> breadcrumbs = null) :
             base(store, displayer, breadcrumbs)
         {
-            // Do nothing. It's all handled in the base class.
+            _categoryFilterString = categoryFilter;
+            RefreshInventory();
+
+            // No need to push self onto breadcrumbs - this is done in BaseInventoryMenu
         }
 
         protected override List<Product> GetInventory()
         {
-            return Store.Inventory.GetAllProducts();
+            List<Product> allProducts = Store.Inventory.GetAllProducts();
+            List<Product> products;
+            if (_categoryFilterString != null)
+            {
+                var filter = allProducts.Where(x => x.Category.Equals(_categoryFilterString));
+                products = filter.ToList();
+            }
+            else
+            {
+                products = allProducts;
+            }
+            return products;
         }
 
         protected override string GetMenuItemDescription(Product product)
