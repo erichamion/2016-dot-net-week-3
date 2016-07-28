@@ -14,7 +14,7 @@ namespace StoreProgram.Menu
 
         /**
          * The last item pushed onto the breadcrumb stack MUST be an
-         * instance of InventoryMenu. If not, will throw an
+         * instance of BaseInventoryMenu (or a subclass). If not, will throw an
          * InvalidCastException.
          */
         public SortMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs) : 
@@ -22,7 +22,7 @@ namespace StoreProgram.Menu
         {
             // Do NOT push self onto the breadcrumb stack.
 
-            InitializeMenuItems((InventoryMenu)breadcrumbs.Peek());
+            InitializeMenuItems((BaseInventoryMenu)breadcrumbs.Peek());
         }
 
         public override MenuItem this[char c]
@@ -40,11 +40,11 @@ namespace StoreProgram.Menu
 
         public override int Length { get { return _menuItems.Count; } }
 
-        private void InitializeMenuItems(InventoryMenu returnMenu)
+        private void InitializeMenuItems(BaseInventoryMenu returnMenu)
         {
             // Based on answer to "How do I enumerate an enum?" at
             // http://stackoverflow.com/questions/105372/how-do-i-enumerate-an-enum
-            foreach (InventoryMenu.SortFields sortField in Enum.GetValues(typeof(InventoryMenu.SortFields)))
+            foreach (BaseInventoryMenu.SortFields sortField in Enum.GetValues(typeof(BaseInventoryMenu.SortFields)))
             {
                 _menuItems.Add(new MenuItem(sortField.ToString(), null, () => 
                 {

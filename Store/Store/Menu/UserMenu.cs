@@ -32,7 +32,7 @@ namespace StoreProgram.Menu
                 }),
                 new MenuItem("view Cart", 'c', () => 
                 {
-                    throw new NotImplementedException();
+                    return new CartMenu(Store, Displayer, Breadcrumbs);
                 }),
                 new MenuItem("view Wallet", 'w', () =>
                 {

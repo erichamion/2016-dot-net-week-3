@@ -9,10 +9,49 @@ namespace StoreProgram.Store
     class Inventory
     {
         private Dictionary<Product, int> _productCounts = new Dictionary<Product, int>();
-        public void AddProduct(Product product, int count = 1)
+
+        public Inventory(ICheckoutEventCreator checkoutCreator)
         {
-            int oldCount = GetProductCount(product);
-            _productCounts[product] = oldCount + count;
+            InitializeProducts();
+
+            checkoutCreator.OnPreCheckoutEvent += OnPreCheckout;
+            checkoutCreator.OnCheckoutEvent += OnCheckout;
+            // No need to register for OnPostCheckoutEvent
+        }
+
+        private void InitializeProducts()
+        {
+            Product[] products = new Product[]
+            {
+                new Product("Self-sealing stem bolt (144 pack)", "Unknown", 35.99),
+                new Product("Reverse-ratcheting routing planer", "Unknown", 12.97),
+                new Product("Yamok sauce (10 wrappages)", "Food", 6.99),
+                new Product("Gagh", "Food", 0.03),
+                new Product("Klingon bloodwine", "Food", 10.00),
+                new Product("Romulan ale", "Food", 3599.00),
+                new Product("Alphanumeric sequencer", "Engineering Tools", 531.75),
+                new Product("Quantum flux regulator", "Engineering Tools", 997.97),
+                new Product("Thermal regulator", "Engineering Tools", 222.22)
+            };
+            int[] productCounts = new int[]
+            {
+                12000,
+                3000,
+                1000,
+                1000,
+                300,
+                0,
+                74,
+                27,
+                42
+            };
+            for (int i = 0; i < products.Length; i++)
+            {
+                Product product = products[i];
+                int count = productCounts[i];
+
+                AddProduct(product, count);
+            }
         }
 
         public bool CheckAvailability(uint productId, int count = 1)
@@ -42,20 +81,47 @@ namespace StoreProgram.Store
             return null;
         }
 
+
+        private void AddProduct(Product product, int count = 1)
+        {
+            int oldCount = GetProductCount(product);
+            _productCounts[product] = oldCount + count;
+        }
+
         private int GetProductCount(Product product)
         {
             return DictionaryHelper.GetWithDefault(_productCounts, product);
         }
 
-        private String ShowProductUser(Product product)
+        private void OnPreCheckout(User.ShoppingCart cart, AddOnlyCollection<String> errors)
         {
-            String availability = CheckAvailability(product) ? "Yes" : "No";
-            return String.Format("{0}\t{1}", product.ToString(), availability);
+            // Ensure that every item in the cart has the necessary amout in stock.
+            foreach (Product product in cart.GetAllProducts())
+            {
+                int needed = cart.GetProductCount(product);
+                int available = GetProductCount(product);
+                if (available < needed)
+                {
+                    String name = product.Name;
+                    if (available == 0)
+                    {
+                        errors.Add(String.Format("'{0}' is out of stock.", name));
+                    }
+                    else
+                    {
+                        errors.Add(String.Format("'{0}' has fewer than {1} units in stock", name, needed));
+                    }
+                }
+            }
         }
 
-        private String ShowProductAdmin(Product product)
+        private void OnCheckout(User.ShoppingCart cart)
         {
-            return String.Format("{0}\t{1}", product.ToString(), _productCounts[product]);
+            // Remove the appropriate number of units of each item in the cart from inventory.
+            foreach (Product product in cart.GetAllProducts())
+            {
+                _productCounts[product] -= cart.GetProductCount(product);
+            }
         }
     }
 }

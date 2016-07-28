@@ -27,7 +27,7 @@ namespace StoreProgram.User
             {
                 throw new ArgumentException("Cannot subtract 0 or negative items from cart!");
             }
-            if (_products.ContainsKey(product))
+            if (!_products.ContainsKey(product))
             {
                 throw new ArgumentException("Attempted to subtract from an item that is not in the cart!");
             }
@@ -36,12 +36,12 @@ namespace StoreProgram.User
             if (newCount <= 0)
             {
                 // If removing all of the product, remove product from the cart entirely.
-                _products.Remove(product);
+                RemoveProduct(product);
             }
             else
             {
                 // Otherwise, change its count.
-                RemoveProduct(product);
+                _products[product] = newCount;
             }
         }
 

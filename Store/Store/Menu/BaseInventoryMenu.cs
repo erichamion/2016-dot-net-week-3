@@ -41,7 +41,7 @@ namespace StoreProgram.Menu
         protected sealed override int ItemCount { get { return Products.Count; } }
 
         // Sort menu item, and Back menu item
-        protected sealed override int ExtraMenuItemCount { get { return 2; } }
+        protected sealed override int ExtraMenuItemCount { get { return GetExtraMenuItemCount() + 2; } }
 
         protected sealed override MenuItem GetMenuItemForIndex(int index)
         {
@@ -64,7 +64,37 @@ namespace StoreProgram.Menu
 
         protected sealed override ICollection<MenuItem> GetExtraMenuItemsAfter()
         {
-            return new List<MenuItem> { GetBackMenuItem() };
+            // Add any items from subclasses
+            List<MenuItem> menuItems = new List<MenuItem>();
+            AddOnlyCollection<MenuItem> addOnlyCollection = new AddOnlyCollection<MenuItem>(menuItems);
+            AppendMenuItems(addOnlyCollection);
+
+            // Add the Back option last
+            menuItems.Add(GetBackMenuItem());
+            return menuItems;
+        }
+
+        /**
+        * Subclasses that add extra MenuItems must override this method to
+        * indicate the number of MenuItems they add. Indirect subclasses
+        * MUST call base.GetExtraMenuItemCount() and add their own count to
+        * the results of that call. Direct subclasses do not need to call
+        * the base method, but they are encouraged to do so for consistency.
+        */
+        protected virtual int GetExtraMenuItemCount()
+        {
+            return 0;
+        }
+
+        /**
+         * Subclasses that need to add extra MenuItems should do so by
+         * overriding this method. Subclasses are encouraged to call the
+         * base method. Calling the base method is not necessary for 
+         * direct subclasses, but it is needed for indirect subclasses.
+         */
+        protected virtual void AppendMenuItems(AddOnlyCollection<MenuItem> menuItems)
+        {
+            // Do nothing
         }
 
 
