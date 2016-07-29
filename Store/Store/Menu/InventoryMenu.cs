@@ -94,15 +94,24 @@ namespace StoreProgram.Menu
                 }
             } while (count < 0);
 
-            if (count == 0)
+            if (count > 0)
             {
-                Displayer.ShowMessage("Zero units selected. Aborting.");
+                String errorMsg = null;
+                if (Store.Inventory.CheckAvailability(product, count, out errorMsg))
+                {
+                    Displayer.ShowMessage(String.Format("Adding {0} units of '{1}' to cart.", count, product.Name));
+                    Store.Customer.Cart.AddProduct(product, count);
+                }
+                else
+                {
+                    Displayer.ShowMessage(String.Format("Could not add to cart: {0}", errorMsg));
+                }
             }
             else
             {
-                Displayer.ShowMessage(String.Format("Adding {0} units of '{1}' to cart.", count, product.Name));
-                Store.Customer.Cart.AddProduct(product, count);
+                Displayer.ShowMessage("Zero units selected. Aborting.");
             }
+            
         }
     }
 }

@@ -56,12 +56,45 @@ namespace StoreProgram.Store
 
         public bool CheckAvailability(uint productId, int count = 1)
         {
-            return CheckAvailability(GetProduct(productId), count);
+            String errorMsg;
+            return CheckAvailability(productId, count, out errorMsg);
+        }
+
+        public bool CheckAvailability(uint productId, int count, out String errorMsg)
+        {
+            return CheckAvailability(GetProduct(productId), count, out errorMsg);
         }
 
         public bool CheckAvailability(Product product, int count = 1)
         {
-            return GetProductCount(product) >= count;
+            String errorMsg;
+            return CheckAvailability(product, count, out errorMsg);
+        }
+
+        public bool CheckAvailability(Product product, int count, out String errorMsg)
+        {
+            bool result;
+            int available = GetProductCount(product);
+            errorMsg = null;
+
+            if (available == 0)
+            {
+                errorMsg = String.Format("'{0}' is out of stock.", product.Name);
+                result = false;
+            }
+            else if (available < count)
+            {
+                errorMsg = String.Format("'{0}' has fewer than {1} units in stock", product.Name, count);
+                result = false;
+            }
+            else
+            {
+                // We have enough units in stock
+                result = true;
+            }
+
+            return result;
+            
         }
 
         public List<Product> GetAllProducts()
@@ -99,11 +132,10 @@ namespace StoreProgram.Store
             foreach (Product product in cart.GetAllProducts())
             {
                 int needed = cart.GetProductCount(product);
-                int available = GetProductCount(product);
-                if (available < needed)
+                if (!CheckAvailability(product, needed))
                 {
                     String name = product.Name;
-                    if (available == 0)
+                    if (GetProductCount(product) == 0)
                     {
                         errors.Add(String.Format("'{0}' is out of stock.", name));
                     }

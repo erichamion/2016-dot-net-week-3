@@ -15,11 +15,11 @@ namespace StoreProgram.Menu
         public CategoryMenu(Store.Store store, UI.IMenuDisplayer displayer, Stack<Menu> breadcrumbs) : 
             base(store, displayer, breadcrumbs)
         {
-            var inventoryFilter = store.Inventory.GetAllProducts()
-                .GroupBy(x => x.Category)
-                .Select(g => g.Key)
-                .OrderBy(x => x);
-            _categories = inventoryFilter.ToList();
+            _categories = store.Inventory.GetAllProducts()
+                .Select(x => x.Category)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
 
             Breadcrumbs.Push(this);
             PopulateRows();
