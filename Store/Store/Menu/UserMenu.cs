@@ -36,7 +36,7 @@ namespace StoreProgram.Menu
                 }),
                 new MenuItem("view Wallet", 'w', () =>
                 {
-                    throw new NotImplementedException();
+                    return new WalletMenu(Store, Displayer, Breadcrumbs);
                 }),
                 new MenuItem("Exit", 'e', () => 
                 {
