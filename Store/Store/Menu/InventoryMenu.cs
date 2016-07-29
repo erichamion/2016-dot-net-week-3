@@ -79,7 +79,7 @@ namespace StoreProgram.Menu
             });
         }
 
-        private void AddProductToCart(Product product)
+        private void AddProductToCart(Store.Product product)
         {
             int count = -1;
             do
@@ -90,28 +90,20 @@ namespace StoreProgram.Menu
 
                 if (count < 0)
                 {
-                    Displayer.ShowMessage("Please enter a valid positive integer (or 0 to abort).");
+                    Displayer.ShowMessage("Please enter a valid positive integer.");
                 }
             } while (count < 0);
 
-            if (count > 0)
+            String reserveResult;
+            if (Store.ReserveProducts(product, count, out reserveResult))
             {
-                String errorMsg = null;
-                if (Store.Inventory.CheckAvailability(product, count, out errorMsg))
-                {
-                    Displayer.ShowMessage(String.Format("Adding {0} units of '{1}' to cart.", count, product.Name));
-                    Store.Customer.Cart.AddProduct(product, count);
-                }
-                else
-                {
-                    Displayer.ShowMessage(String.Format("Could not add to cart: {0}", errorMsg));
-                }
+                // Success
+                reserveResult = String.Format("Added {0} units of '{1}' to cart.", count, product.Name);
             }
-            else
-            {
-                Displayer.ShowMessage("Zero units selected. Aborting.");
-            }
-            
+            // else reserveResult has an error message.
+
+            Displayer.ShowMessage(reserveResult);
+
         }
     }
 }

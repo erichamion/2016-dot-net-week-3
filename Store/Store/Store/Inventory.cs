@@ -10,13 +10,23 @@ namespace StoreProgram.Store
     {
         private Dictionary<Product, int> _productCounts = new Dictionary<Product, int>();
 
+        // Key = transaction ID
+        // Value = Dictionary
+        //         {
+        //              Key = product
+        //              Value = number of product to reserve
+        //          }
+        private Dictionary<int, Dictionary<Product, int>> _reservations = new Dictionary<int, Dictionary<Product, int>>();
+
         public Inventory(ICheckoutEventCreator checkoutCreator)
         {
             InitializeProducts();
 
+            checkoutCreator.OnPreReserveEvent += OnPreReserve;
+            checkoutCreator.OnReserveEvent += OnReserve;
             checkoutCreator.OnPreCheckoutEvent += OnPreCheckout;
             checkoutCreator.OnCheckoutEvent += OnCheckout;
-            // No need to register for OnPostCheckoutEvent
+            checkoutCreator.OnTransactionEndedEvent += OnTransactionEnded;
         }
 
         private void InitializeProducts()
@@ -73,8 +83,13 @@ namespace StoreProgram.Store
 
         public bool CheckAvailability(Product product, int count, out String errorMsg)
         {
+            return CheckAvailability(product, count, false, out errorMsg);
+        }
+
+        private bool CheckAvailability(Product product, int count, bool ignoreReservations, out String errorMsg)
+        {
             bool result;
-            int available = GetProductCount(product);
+            int available = ignoreReservations ? GetFullProductCount(product) : GetUnreservedProductCount(product);
             errorMsg = null;
 
             if (available == 0)
@@ -84,7 +99,8 @@ namespace StoreProgram.Store
             }
             else if (available < count)
             {
-                errorMsg = String.Format("'{0}' has fewer than {1} units in stock", product.Name, count);
+                errorMsg = String.Format("'{0}' has fewer than {1}{2} units in stock", 
+                    product.Name, count, ignoreReservations ? "" : " unreserved");
                 result = false;
             }
             else
@@ -94,7 +110,6 @@ namespace StoreProgram.Store
             }
 
             return result;
-            
         }
 
         public List<Product> GetAllProducts()
@@ -117,42 +132,114 @@ namespace StoreProgram.Store
 
         private void AddProduct(Product product, int count = 1)
         {
-            int oldCount = GetProductCount(product);
+            int oldCount = GetFullProductCount(product);
             _productCounts[product] = oldCount + count;
         }
 
-        private int GetProductCount(Product product)
+        private int GetUnreservedProductCount(Product product)
+        {
+            return GetFullProductCount(product) - GetReservedCount(product);
+        }
+
+        private int GetFullProductCount(Product product)
         {
             return DictionaryHelper.GetWithDefault(_productCounts, product);
         }
 
-        private void OnPreCheckout(User.ShoppingCart cart, AddOnlyCollection<String> errors)
+        private int GetReservedCount(Product product)
         {
-            // Ensure that every item in the cart has the necessary amout in stock.
+            return _reservations.Values.SelectMany(x => x).Where(x => x.Key == product).Sum(x => x.Value);
+        }
+
+        private Dictionary<Product, int> GetOrCreateReservation(int transactionId)
+        {
+            Dictionary<Product, int> reservation = DictionaryHelper.GetWithDefault(_reservations, transactionId);
+            if (reservation == null)
+            {
+                reservation = new Dictionary<Product, int>();
+                _reservations[transactionId] = reservation;
+            }
+
+            return reservation;
+        }
+
+        private void OnPreReserve(Product product, int count, int transactionId, AddOnlyCollection<String> errors)
+        {
+            // Ensure that every item in the cart has the necessary amout in stock
+            // and not already reserved.
+            String errorMsg;
+            if (!CheckAvailability(product, count, false, out errorMsg))
+            {
+                errors.Add(errorMsg);
+            }
+        }
+
+        private void OnReserve(Product product, int count, int transactionId)
+        {
+            Dictionary<Product, int> reservation = GetOrCreateReservation(transactionId);
+            int oldCount = DictionaryHelper.GetWithDefault(reservation, product, 0);
+            reservation[product] = oldCount + count;
+
+        }
+
+        private void OnPreRelease(Product product, int count, int transactionId, AddOnlyCollection<int> maxReleased)
+        {
+            // How many do we actually have reserved?
+            int numReserved = 0;
+            Dictionary<Product, int> reservation = DictionaryHelper.GetWithDefault(_reservations, transactionId);
+            if (reservation != null)
+            {
+                numReserved = DictionaryHelper.GetWithDefault(reservation, product, 0);
+            }
+
+            // Are we trying to release more than are reserved?
+            if (numReserved < count)
+            {
+                // Yes. Tell the event publisher how many we can actually release.
+                maxReleased.Add(numReserved);
+            }
+
+        }
+
+        private void OnRelease(Product product, int count, int transactionId)
+        {
+            if (count == 0) return;
+
+            // These keys should exist because we checked during OnPreRelease.
+            var reservation = _reservations[transactionId];
+            reservation[product] -= count;
+        }
+
+        private void OnPreCheckout(User.ShoppingCart cart, int transactionId, AddOnlyCollection<String> errors)
+        {
+            // Ensure that every item in the cart has the necessary amout in stock,
+            // regardless of reservations.
             foreach (Product product in cart.GetAllProducts())
             {
                 int needed = cart.GetProductCount(product);
-                if (!CheckAvailability(product, needed))
+                String errorMsg;
+                if (!CheckAvailability(product, needed, true, out errorMsg))
                 {
-                    String name = product.Name;
-                    if (GetProductCount(product) == 0)
-                    {
-                        errors.Add(String.Format("'{0}' is out of stock.", name));
-                    }
-                    else
-                    {
-                        errors.Add(String.Format("'{0}' has fewer than {1} units in stock", name, needed));
-                    }
+                    errors.Add(errorMsg);
                 }
             }
         }
 
-        private void OnCheckout(User.ShoppingCart cart)
+        private void OnCheckout(User.ShoppingCart cart, int transactionId)
         {
             // Remove the appropriate number of units of each item in the cart from inventory.
             foreach (Product product in cart.GetAllProducts())
             {
                 _productCounts[product] -= cart.GetProductCount(product);
+            }
+        }
+
+        private void OnTransactionEnded(int transactionId)
+        {
+            // Remove the given reservation if it exists.
+            if (_reservations.ContainsKey(transactionId))
+            {
+                _reservations.Remove(transactionId);
             }
         }
     }

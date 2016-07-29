@@ -74,14 +74,12 @@ namespace StoreProgram.Menu
                     }
                 } while (count < 0);
 
-                if (count > 0)
-                {
-                    Store.Customer.Cart.SubtractProduct(product, count);
-                    Displayer.ShowMessage(String.Format("Removing {0} units of '{1}' from cart.\nPress any key...", count, product.Name));
-                    Console.ReadKey(true);
-                    RefreshInventory();
-                }
-                // else count == 0, do nothing
+                Displayer.ShowMessage(String.Format("Attempting to remove {0} units of '{1}' from cart...", count, product.Name));
+                int removed = Store.ReleaseProducts(product, count);
+                Displayer.ShowMessage(String.Format("Removed {0} units\nPress any key...", removed));
+                Console.ReadKey(true);
+                RefreshInventory();
+                
 
                 return this;
             };

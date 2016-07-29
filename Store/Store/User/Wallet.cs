@@ -44,7 +44,7 @@ namespace StoreProgram.User
             Cash += amount;
         }
 
-        private void OnPreCheckout(ShoppingCart cart, AddOnlyCollection<String> errors)
+        private void OnPreCheckout(ShoppingCart cart, int transactionId, AddOnlyCollection<String> errors)
         {
             // Make sure we can cover the cost of the cart.
             double price = cart.GetTotalPrice();
@@ -54,7 +54,7 @@ namespace StoreProgram.User
             }
         }
 
-        private void OnCheckout(ShoppingCart cart)
+        private void OnCheckout(ShoppingCart cart, int transactionId)
         {
             // Take money out of the wallet to cover the cart's total cost.
             Pay(cart.GetTotalPrice());

@@ -8,8 +8,15 @@ namespace StoreProgram.Store
 {
     static class CheckoutEvents
     {
-        public delegate void OnPreCheckout(User.ShoppingCart cart, AddOnlyCollection<String> errors);
-        public delegate void OnCheckout(User.ShoppingCart cart);
-        public delegate void OnPostCheckout();
+        public delegate void OnPreReserve(Product product, int count, int transactionId, AddOnlyCollection<String> errors);
+        public delegate void OnReserve(Product product, int count, int transactionId);
+
+        public delegate void OnPreRelease(Product product, int count, int transactionId, AddOnlyCollection<int> maxReleased);
+        public delegate void OnRelease(Product product, int count, int transactionId);
+
+        public delegate void OnPreCheckout(User.ShoppingCart cart, int transactionId, AddOnlyCollection<String> errors);
+        public delegate void OnCheckout(User.ShoppingCart cart, int transactionId);
+
+        public delegate void OnTransactionEnded(int transactionId);
     }
 }

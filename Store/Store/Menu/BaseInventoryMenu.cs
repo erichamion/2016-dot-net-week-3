@@ -153,31 +153,32 @@ namespace StoreProgram.Menu
 
         
         
-        private void AddProductToCart(Store.Product product)
-        {
-            int count = -1;
-            do
-            {
-                String response = Displayer.PromptUserAndGetResponse(String.Format("How many units of '{0}' would you like to add to the cart?", product.Name));
-                bool isValid = int.TryParse(response, out count);
-                if (!isValid) count = -1;
+        //private void AddProductToCart(Store.Product product)
+        //{
+        //    int count = -1;
+        //    do
+        //    {
+        //        String response = Displayer.PromptUserAndGetResponse(String.Format("How many units of '{0}' would you like to add to the cart?", product.Name));
+        //        bool isValid = int.TryParse(response, out count);
+        //        if (!isValid) count = -1;
 
-                if (count < 0)
-                {
-                    Displayer.ShowMessage("Please enter a valid positive integer (or 0 to abort).");
-                }
-            } while (count < 0);
+        //        if (count < 0)
+        //        {
+        //            Displayer.ShowMessage("Please enter a valid positive integer.");
+        //        }
+        //    } while (count < 0);
 
-            if (count == 0)
-            {
-                Displayer.ShowMessage("Zero units selected. Aborting.");
-            }
-            else
-            {
-                Displayer.ShowMessage(String.Format("Adding {0} units of '{1}' to cart.", count, product.Name));
-                Store.Customer.Cart.AddProduct(product, count);
-            }
-        }
+        //    String reserveResult;
+        //    if (Store.ReserveProducts(product, count, out reserveResult))
+        //    {
+        //        // Success
+        //        reserveResult = String.Format("Added {0} units of '{1}' to cart.", count, product.Name);
+        //    }
+        //    // else reserveResult has an error message.
+
+        //    Displayer.ShowMessage(reserveResult);
+            
+        //}
 
         public enum SortFields
         {

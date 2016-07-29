@@ -10,28 +10,46 @@ namespace StoreProgram.User
     {
         private Dictionary<Store.Product, int> _products = new Dictionary<Store.Product, int>();
 
-        public void AddProduct(Store.Product product, int count)
+        public ShoppingCart(Store.ICheckoutEventCreator checkoutCreator)
         {
-            if (count < 1)
+            checkoutCreator.OnReserveEvent += AddProduct;
+            checkoutCreator.OnPreReleaseEvent += BeforeSubtractProduct;
+            checkoutCreator.OnReleaseEvent += SubtractProduct;
+            checkoutCreator.OnTransactionEndedEvent += OnTransactionEnded;
+        }
+
+        private void AddProduct(Store.Product product, int count, int transactionId)
+        {
+            if (count == 0) return;
+
+            if (count < 0)
             {
-                throw new ArgumentException("Cannot add 0 or negative items to cart!");
+                throw new ArgumentException("Cannot add negative items to cart!");
             }
 
             int oldCount = GetProductCount(product);
             _products[product] = oldCount + count;
         }
 
-        public void SubtractProduct(Store.Product product, int count)
+        private void BeforeSubtractProduct(Store.Product product, int count, int transactionId, AddOnlyCollection<int> maxReleased)
         {
-            if (count < 1)
+            int subtractable = DictionaryHelper.GetWithDefault(_products, product);
+            if (subtractable < count)
             {
-                throw new ArgumentException("Cannot subtract 0 or negative items from cart!");
+                maxReleased.Add(subtractable);
             }
-            if (!_products.ContainsKey(product))
-            {
-                throw new ArgumentException("Attempted to subtract from an item that is not in the cart!");
-            }
+        }
 
+        private void SubtractProduct(Store.Product product, int count, int transactionId)
+        {
+            if (count == 0) return;
+
+            if (count < 0)
+            {
+                throw new ArgumentException("Cannot subtract negative items from cart!");
+            }
+            
+            // This key should exist because we checked in BeforeSubtractProduct
             int newCount = _products[product] - count;
             if (newCount <= 0)
             {
@@ -45,14 +63,15 @@ namespace StoreProgram.User
             }
         }
 
-        public void RemoveProduct(Store.Product product)
+        private void OnTransactionEnded(int transactionId)
         {
-            _products.Remove(product);
+            // The next transaction needs an empty cart.
+            _products.Clear();
         }
 
-        public void Clear()
+        private void RemoveProduct(Store.Product product)
         {
-            _products.Clear();
+            _products.Remove(product);
         }
 
         public List<Store.Product> GetAllProducts()
