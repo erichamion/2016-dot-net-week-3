@@ -15,7 +15,15 @@ namespace StoreProgram.Store
 
         private static uint nextId = 42272742;
 
-        public enum ProductFields
+        private ProductFields[] _fieldOrder = new ProductFields[]
+        {
+            ProductFields.ID,
+            ProductFields.NAME,
+            ProductFields.CATEGORY,
+            ProductFields.PRICE
+        };
+
+        private enum ProductFields
         {
             ID, NAME, CATEGORY, PRICE
         }
@@ -30,22 +38,37 @@ namespace StoreProgram.Store
 
         public Product(String name, String category, double price) : this(nextId++, name, category, price) { }
 
-        public Product(ref Queue<String> tokens)
+        public Product(Queue<String> tokens)
         {
             if (tokens.Count < 4)
             {
                 throw new FormatException(String.Format("Product string needs 4 tokens, found {0}", tokens.Count));
             }
 
-            // Throws exception if the token doesn't represent an unsigned integer
-            Id = uint.Parse(tokens.Dequeue());
+            foreach (ProductFields field in _fieldOrder)
+            {
+                String token = tokens.Dequeue();
+                switch (field)
+                {
+                    case ProductFields.ID:
+                        // Throws exception if the token doesn't represent an unsigned integer
+                        Id = uint.Parse(token);
+                        break;
 
-            Name = tokens.Dequeue();
+                    case ProductFields.NAME:
+                        Name = token;
+                        break;
 
-            Category = tokens.Dequeue();
+                    case ProductFields.CATEGORY:
+                        Category = token;
+                        break;
 
-            // Throws exception if the price doesn't look like a double
-            Price = double.Parse(tokens.Dequeue());
+                    case ProductFields.PRICE:
+                        // Throws exception if the price doesn't look like a double
+                        Price = double.Parse(token);
+                        break;
+                }
+            }
         }
 
         /**
@@ -79,14 +102,14 @@ namespace StoreProgram.Store
 
         public override string ToString()
         {
-            return ToString("\t", ProductFields.ID, ProductFields.NAME, ProductFields.CATEGORY, ProductFields.PRICE);
+            return ToString("\t");
         }
 
-        public String ToString(String sep, params ProductFields[] fields)
+        public String ToString(String sep)
         {
             String result = String.Empty;
             bool hasLooped = false;
-            foreach (ProductFields field in fields)
+            foreach (ProductFields field in _fieldOrder)
             {
                 String fieldString;
                 switch (field)
@@ -104,7 +127,7 @@ namespace StoreProgram.Store
                         break;
 
                     case ProductFields.PRICE:
-                        fieldString = String.Format("{0:C}", Price);
+                        fieldString = String.Format("{0:F2}", Price);
                         break;
 
                     default:
@@ -121,7 +144,7 @@ namespace StoreProgram.Store
 
         public String ToStorageString()
         {
-            return ToString("\0", ProductFields.ID, ProductFields.NAME, ProductFields.CATEGORY, ProductFields.PRICE);
+            return ToString("\0");
         }
 
     }

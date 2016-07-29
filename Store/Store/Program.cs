@@ -8,9 +8,11 @@ namespace StoreProgram
 {
     class Program
     {
+        private const String DEFAULT_INVENTORY_FILENAME = @"store.inv";
+
         static void Main(string[] args)
         {
-            Store.Store store = new Store.Store();
+            Store.Store store = new Store.Store(DEFAULT_INVENTORY_FILENAME);
 
             UI.IMenuDisplayer displayer = new UI.BasicDisplayer();
             Menu.Menu menu = new Menu.UserMenu(store, displayer);

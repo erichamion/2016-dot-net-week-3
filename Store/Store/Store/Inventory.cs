@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace StoreProgram.Store
 {
     class Inventory
     {
         private Dictionary<Product, int> _productCounts = new Dictionary<Product, int>();
+        private String _filepath;
 
         // Key = transaction ID
         // Value = Dictionary
@@ -18,50 +20,88 @@ namespace StoreProgram.Store
         //          }
         private Dictionary<int, Dictionary<Product, int>> _reservations = new Dictionary<int, Dictionary<Product, int>>();
 
-        public Inventory(ICheckoutEventCreator checkoutCreator)
+        public Inventory(String filepath, ICheckoutEventCreator checkoutCreator)
         {
-            InitializeProducts();
+            _filepath = filepath;
+            LoadProducts();
 
             checkoutCreator.OnPreReserveEvent += OnPreReserve;
             checkoutCreator.OnReserveEvent += OnReserve;
             checkoutCreator.OnPreCheckoutEvent += OnPreCheckout;
             checkoutCreator.OnCheckoutEvent += OnCheckout;
-            checkoutCreator.OnTransactionEndedEvent += OnTransactionEnded;
+            checkoutCreator.OnTransactionEndedEvent += OnTransactionEndedAsync;
         }
 
-        private void InitializeProducts()
+        private void LoadProducts()
         {
-            Product[] products = new Product[]
+            using (var fileStream = File.Open(_filepath, FileMode.Open, FileAccess.Read))
             {
-                new Product("Self-sealing stem bolt (144 pack)", "Unknown", 35.99),
-                new Product("Reverse-ratcheting routing planer", "Unknown", 12.97),
-                new Product("Yamok sauce (10 wrappages)", "Food", 6.99),
-                new Product("Gagh", "Food", 0.03),
-                new Product("Klingon bloodwine", "Food", 10.00),
-                new Product("Romulan ale", "Food", 3599.00),
-                new Product("Alphanumeric sequencer", "Engineering Tools", 531.75),
-                new Product("Quantum flux regulator", "Engineering Tools", 997.97),
-                new Product("Thermal regulator", "Engineering Tools", 222.22)
-            };
-            int[] productCounts = new int[]
-            {
-                12000,
-                3000,
-                1000,
-                1000,
-                300,
-                0,
-                74,
-                27,
-                42
-            };
-            for (int i = 0; i < products.Length; i++)
-            {
-                Product product = products[i];
-                int count = productCounts[i];
+                using (var reader = new StreamReader(fileStream))
+                {
+                    while (!(reader.EndOfStream))
+                    {
+                        String line = reader.ReadLine();
+                        Queue<String> tokens = new Queue<string>(line.Split('\0'));
+                        Product product = new Product(tokens);
 
-                AddProduct(product, count);
+                        // Throws exception if there aren't enough tokens or
+                        // token does not represent an integer.
+                        int count = int.Parse(tokens.Dequeue());
+
+                        AddProduct(product, count);
+                    }
+                }
             }
+
+
+            //Product[] products = new Product[]
+            //{
+            //    new Product("Self-sealing stem bolt (144 pack)", "Unknown", 35.99),
+            //    new Product("Reverse-ratcheting routing planer", "Unknown", 12.97),
+            //    new Product("Yamok sauce (10 wrappages)", "Food", 6.99),
+            //    new Product("Gagh", "Food", 0.03),
+            //    new Product("Klingon bloodwine", "Food", 10.00),
+            //    new Product("Romulan ale", "Food", 3599.00),
+            //    new Product("Alphanumeric sequencer", "Engineering Tools", 531.75),
+            //    new Product("Quantum flux regulator", "Engineering Tools", 997.97),
+            //    new Product("Thermal regulator", "Engineering Tools", 222.22)
+            //};
+            //int[] productCounts = new int[]
+            //{
+            //    12000,
+            //    3000,
+            //    1000,
+            //    1000,
+            //    300,
+            //    0,
+            //    74,
+            //    27,
+            //    42
+            //};
+            //for (int i = 0; i < products.Length; i++)
+            //{
+            //    Product product = products[i];
+            //    int count = productCounts[i];
+
+            //    AddProduct(product, count);
+            //}
+        }
+
+        private async Task SaveProductsAsync()
+        {
+            using (var fileStream = File.Open(_filepath, FileMode.Create, FileAccess.Write))
+            {
+                using (var writer = new StreamWriter(fileStream))
+                {
+                    foreach (KeyValuePair<Product, int> pair in _productCounts)
+                    {
+                        Product product = pair.Key;
+                        int count = pair.Value;
+                        await writer.WriteLineAsync(String.Format("{0}\0{1}", product.ToStorageString(), count));
+                    }
+                }
+            }
+            
         }
 
         public bool CheckAvailability(uint productId, int count = 1)
@@ -234,13 +274,16 @@ namespace StoreProgram.Store
             }
         }
 
-        private void OnTransactionEnded(int transactionId)
+        private async void OnTransactionEndedAsync(int transactionId)
         {
             // Remove the given reservation if it exists.
             if (_reservations.ContainsKey(transactionId))
             {
                 _reservations.Remove(transactionId);
             }
+
+            // There have likely been changes to the inventory. Save to file. 
+            await SaveProductsAsync();
         }
     }
 }

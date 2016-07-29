@@ -22,9 +22,9 @@ namespace StoreProgram.Store
         public Inventory Inventory { get; }
         public User.Customer Customer { get; }
 
-        public Store()
+        public Store(String inventoryFilepath)
         {
-            Inventory = new Inventory(this);
+            Inventory = new Inventory(inventoryFilepath, this);
             Customer = new User.Customer(this);
             _transactionIdProvider = Customer;
         }
