@@ -64,6 +64,7 @@
     <Compile Include="Store\CheckoutEvents.cs" />
     <Compile Include="Store\ICheckoutEventCreator.cs" />
     <Compile Include="Store\Inventory.cs" />
+    <Compile Include="Store\ITransactionIdProvider.cs" />
     <Compile Include="Store\Product.cs" />
     <Compile Include="Store\Store.cs" />
     <Compile Include="UI\BasicDisplayer.cs" />

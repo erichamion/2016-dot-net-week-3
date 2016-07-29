@@ -16,7 +16,7 @@ namespace StoreProgram.Store
         public event CheckoutEvents.OnCheckout OnCheckoutEvent;
         public event CheckoutEvents.OnTransactionEnded OnTransactionEndedEvent;
 
-        private int _transactionId = 1;
+        private ITransactionIdProvider _transactionIdProvider;
 
 
         public Inventory Inventory { get; }
@@ -24,8 +24,9 @@ namespace StoreProgram.Store
 
         public Store()
         {
-            this.Inventory = new Inventory(this);
-            this.Customer = new User.Customer(this);
+            Inventory = new Inventory(this);
+            Customer = new User.Customer(this);
+            _transactionIdProvider = Customer;
         }
 
         public bool ReserveProducts(Product product, int count, out String errorMessage)
@@ -34,11 +35,12 @@ namespace StoreProgram.Store
 
             errorMessage = null;
             List<String> errors = new List<string>();
-            OnPreReserveEvent?.Invoke(product, count, _transactionId, new AddOnlyCollection<String>(errors));
+            int transactionId = _transactionIdProvider.TransactionId;
+            OnPreReserveEvent?.Invoke(product, count, transactionId, new AddOnlyCollection<String>(errors));
             if (errors.Count == 0)
             {
                 // Everything is good
-                OnReserveEvent?.Invoke(product, count, _transactionId);
+                OnReserveEvent?.Invoke(product, count, transactionId);
                 return true;
             }
             else
@@ -61,12 +63,13 @@ namespace StoreProgram.Store
             // list's minimum, rather than get the list's minimum 
             // and compare it to count).
             List<int> maxCount = new List<int> { count };
-            OnPreReleaseEvent(product, count, _transactionId, new AddOnlyCollection<int>(maxCount));
+            int transactionId = _transactionIdProvider.TransactionId;
+            OnPreReleaseEvent(product, count, transactionId, new AddOnlyCollection<int>(maxCount));
 
             int realCount = maxCount.Min();
             if (realCount > 0)
             {
-                OnReleaseEvent(product, count, _transactionId);
+                OnReleaseEvent(product, count, transactionId);
             }
 
             return Math.Max(realCount, 0);
@@ -76,15 +79,16 @@ namespace StoreProgram.Store
         {
             errorMessage = null;
             List<String> errors = new List<string>();
-            OnPreCheckoutEvent?.Invoke(Customer.Cart, _transactionId, new AddOnlyCollection<string>(errors));
+            int transactionId = _transactionIdProvider.TransactionId;
+            OnPreCheckoutEvent?.Invoke(Customer.Cart, transactionId, new AddOnlyCollection<string>(errors));
             if (errors.Count == 0)
             {
                 //Everything went well
-                OnCheckoutEvent?.Invoke(Customer.Cart, _transactionId);
-                OnTransactionEndedEvent?.Invoke(_transactionId);
+                OnCheckoutEvent?.Invoke(Customer.Cart, transactionId);
+                OnTransactionEndedEvent?.Invoke(transactionId);
 
                 // The next reserve will be a new transaction.
-                _transactionId++;
+                transactionId++;
                 return true;
             }
             else
