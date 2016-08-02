@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.UI
 {
-    interface IMenuDisplayer
+    public interface IMenuDisplayer
     {
         Menu.Menu ShowMenuAndGetSelection(Menu.Menu menu);
         String PromptUserAndGetResponse(String prompt);

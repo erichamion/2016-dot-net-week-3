@@ -7,7 +7,7 @@ using System.IO;
 
 namespace StoreProgram.Store
 {
-    class Inventory
+    public class Inventory
     {
         private Dictionary<Product, int> _productCounts = new Dictionary<Product, int>();
         private String _filepath;
@@ -132,7 +132,16 @@ namespace StoreProgram.Store
             int available = ignoreReservations ? GetFullProductCount(product) : GetUnreservedProductCount(product);
             errorMsg = null;
 
-            if (available == 0)
+            // If ignoreReservations is true, then available already equals GetFullProductCount
+            // and we don't need to call GetFullProductCount again. This simplifies to: 
+            // "if (available == 0 && (true || GetFullProductCount() == 0))"
+            // --> "if (available == 0 && true)
+            // --> "if (available == 0)"
+            // If ignoreReservations is false, then we do need to call GetFullProductCount. This
+            // simplifies to:
+            // "if (available == 0 && (false || GetFullProductCount() == 0))"
+            // --> "if (available == 0 && GetFullProductCount() == 0)"
+            if (available == 0 && (ignoreReservations || GetFullProductCount(product) == 0))
             {
                 errorMsg = String.Format("'{0}' is out of stock.", product.Name);
                 result = false;

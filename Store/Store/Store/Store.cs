@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Store
 {
-    class Store : ICheckoutEventCreator
+    public class Store : ICheckoutEventCreator
     {
         public event CheckoutEvents.OnPreReserve OnPreReserveEvent;
         public event CheckoutEvents.OnReserve OnReserveEvent;
@@ -69,7 +69,7 @@ namespace StoreProgram.Store
             int realCount = maxCount.Min();
             if (realCount > 0)
             {
-                OnReleaseEvent(product, count, transactionId);
+                OnReleaseEvent(product, realCount, transactionId);
             }
 
             return Math.Max(realCount, 0);
@@ -88,7 +88,7 @@ namespace StoreProgram.Store
                 OnTransactionEndedEvent?.Invoke(transactionId);
 
                 // The next reserve will be a new transaction.
-                transactionId++;
+                _transactionIdProvider.StartNewTransaction();
                 return true;
             }
             else

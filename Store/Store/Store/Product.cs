@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Store
 {
-    class Product
+    public class Product
     {
         public uint Id { get; }
         public String Name { get; }
@@ -34,6 +34,11 @@ namespace StoreProgram.Store
             Name = name;
             Category = category;
             Price = price;
+
+            if (id >= nextId)
+            {
+                nextId = id + 1;
+            }
         }
 
         public Product(String name, String category, double price) : this(nextId++, name, category, price) { }
@@ -68,6 +73,11 @@ namespace StoreProgram.Store
                         Price = double.Parse(token);
                         break;
                 }
+            }
+
+            if (Id >= nextId)
+            {
+                nextId = Id + 1;
             }
         }
 

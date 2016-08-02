@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    class CategoryMenu : PagingMenu
+    public class CategoryMenu : PagingMenu
     {
         private const String DESCRIPTION_FMT_STRING = "Categories: Showing {0}-{1}";
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram
 {
-    class AddOnlyCollection<T>
+    public class AddOnlyCollection<T>
     {
         private readonly ICollection<T> _collection;
 

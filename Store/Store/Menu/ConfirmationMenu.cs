@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    class ConfirmationMenu : Menu
+    public class ConfirmationMenu : Menu
     {
         const String DESCRIPTION = "Are you sure?";
         const int YES = 0;

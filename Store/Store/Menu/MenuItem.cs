@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    class MenuItem
+    public class MenuItem
     {
         public String Description { get; }
         public char? Shortcut { get; }

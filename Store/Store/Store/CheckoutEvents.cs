@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Store
 {
-    static class CheckoutEvents
+    public static class CheckoutEvents
     {
         public delegate void OnPreReserve(Product product, int count, int transactionId, AddOnlyCollection<String> errors);
         public delegate void OnReserve(Product product, int count, int transactionId);

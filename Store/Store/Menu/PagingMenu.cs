@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    abstract class PagingMenu : Menu
+    public abstract class PagingMenu : Menu
     {
         // 9 total rows max (because user has to select a 1-digit positive integer)
         // 1 row reserved for Back option

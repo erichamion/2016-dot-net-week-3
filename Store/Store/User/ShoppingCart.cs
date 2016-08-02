@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.User
 {
-    class ShoppingCart
+    public class ShoppingCart
     {
         private Dictionary<Store.Product, int> _products = new Dictionary<Store.Product, int>();
 

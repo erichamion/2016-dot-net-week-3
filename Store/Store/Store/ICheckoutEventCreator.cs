@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Store
 {
-    interface ICheckoutEventCreator
+    public interface ICheckoutEventCreator
     {
         /**
          * OnPreReserveEvent occurs just before reserving any number of

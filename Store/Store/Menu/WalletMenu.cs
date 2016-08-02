@@ -8,7 +8,7 @@ using StoreProgram.UI;
 
 namespace StoreProgram.Menu
 {
-    class WalletMenu : Menu
+    public class WalletMenu : Menu
     {
         private const String DESCRIPTION_FMT_STRING = "Wallet contains {0:C}";
         private readonly MenuItem[] _menuItems;

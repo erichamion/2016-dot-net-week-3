@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    abstract class BaseInventoryMenu : PagingMenu
+    public abstract class BaseInventoryMenu : PagingMenu
     {
         
         private SortFields _sortMethod = SortFields.NONE;

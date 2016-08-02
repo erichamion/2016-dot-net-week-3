@@ -3,7 +3,7 @@ using StoreProgram.Menu;
 
 namespace StoreProgram.UI
 {
-    class BasicDisplayer : IMenuDisplayer
+    public class BasicDisplayer : IMenuDisplayer
     {
         public Menu.Menu ShowMenuAndGetSelection(Menu.Menu menu)
         {

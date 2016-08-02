@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.User
 {
-    class Wallet
+    public class Wallet
     {
         public double Cash { get; private set; }
 
@@ -41,6 +41,11 @@ namespace StoreProgram.User
 
         public void Fill(double amount)
         {
+            if (amount < 0)
+            {
+                throw new ArgumentOutOfRangeException("Cannot fill wallet with a negative an amount");
+            }
+
             Cash += amount;
         }
 
@@ -48,7 +53,7 @@ namespace StoreProgram.User
         {
             // Make sure we can cover the cost of the cart.
             double price = cart.GetTotalPrice();
-            if (Cash < price)
+            if (!CanPay(price))
             {
                 errors.Add(String.Format("Not enough cash in wallet: Need {0:C}, have {1:C}", price, Cash));
             }

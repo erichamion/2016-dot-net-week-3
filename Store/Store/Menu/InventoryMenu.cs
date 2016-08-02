@@ -7,7 +7,7 @@ using StoreProgram.Store;
 
 namespace StoreProgram.Menu
 {
-    class InventoryMenu : BaseInventoryMenu
+    public class InventoryMenu : BaseInventoryMenu
     {
         private const String DESCRIPTION_FMT_STRING = "Showing items{0} {1}-{2} (Sorted by: {3})";
         

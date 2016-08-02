@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    class UserMenu : Menu
+    public class UserMenu : Menu
     {
         const String DESCRIPTION = "What would you like to do?";
 

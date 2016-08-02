@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    class SortMenu : Menu
+    public class SortMenu : Menu
     {
         const String DESCRIPTION = "Sort by:";
 

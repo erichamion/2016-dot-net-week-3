@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.User
 {
-    class Customer : Store.ITransactionIdProvider
+    public class Customer : Store.ITransactionIdProvider
     {
         private static int _nextTransactionId = 1;
         private int _transactionId;

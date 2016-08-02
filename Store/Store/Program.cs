@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace StoreProgram
 {
-    class Program
+    public class Program
     {
-        private const String DEFAULT_INVENTORY_FILENAME = @"store.inv";
+        public const String DEFAULT_INVENTORY_FILENAME = @"store.inv";
 
         static void Main(string[] args)
         {

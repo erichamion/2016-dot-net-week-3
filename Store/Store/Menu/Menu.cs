@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreProgram.Menu
 {
-    abstract class Menu
+    public abstract class Menu
     {
         public abstract String Description { get; }
         public abstract int Length { get; }

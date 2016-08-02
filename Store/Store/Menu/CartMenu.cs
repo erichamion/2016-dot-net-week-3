@@ -8,7 +8,7 @@ using StoreProgram.UI;
 
 namespace StoreProgram.Menu
 {
-    class CartMenu : BaseInventoryMenu
+    public class CartMenu : BaseInventoryMenu
     {
         private const String DISPLAY_FMT_STRING = "Shopping Cart: {0}-{1} of {2} unique items (Sorted by: {3}). Total cost {4:C}";
 
